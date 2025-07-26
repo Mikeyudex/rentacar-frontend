@@ -34,7 +34,7 @@ export async function getUsers(): Promise<UserData[]> {
  */
 export async function createUser(userData: CreateUserData): Promise<UserData> {
   try {
-    let token = await getToken(username, password);
+    let token = await getToken();
     const response = await fetch(`${API_URL}/users/register`, {
       method: 'POST',
       headers: {
@@ -68,7 +68,7 @@ export async function createUser(userData: CreateUserData): Promise<UserData> {
  */
 export async function updateUser(userData: UpdateUserData): Promise<UserData> {
   try {
-    let token = await getToken(username, password);
+    let token = await getToken();
     let userPayload = {
       email: userData.email || "",
       documento: userData.documento || "",
@@ -106,7 +106,7 @@ export async function updateUser(userData: UpdateUserData): Promise<UserData> {
  */
 export async function deleteUser(userId: string): Promise<void> {
   try {
-    let token = await getToken(username, password);
+    let token = await getToken();
     const response = await fetch(`${API_URL}/users/${userId}`, {
       method: 'DELETE',
       headers: {
@@ -126,7 +126,7 @@ export async function deleteUser(userId: string): Promise<void> {
  */
 export async function getUserById(userId: string): Promise<UserData | null> {
   try {
-    let token = await getToken(username, password);
+    let token = await getToken();
     const response = await fetch(`${API_URL}/users/${userId}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -146,6 +146,23 @@ export async function getUserById(userId: string): Promise<UserData | null> {
       rol: userData?.rol,
       documento: userData?.documento
     }
+  } catch (error) {
+    console.error("Error al obtener usuario:", error)
+    throw error
+  }
+}
+
+export async function getInfoRole(roleId: string): Promise<Record<string, any>> {
+  try {
+    let token = getToken();
+    const response = await fetch(`${API_URL}/user-role/${roleId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) throw new Error('Error al obtener usuario');
+    let roleData = await response.json();
+    return roleData;
   } catch (error) {
     console.error("Error al obtener usuario:", error)
     throw error

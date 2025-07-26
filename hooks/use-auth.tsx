@@ -108,6 +108,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Limpiar completamente todos los datos
         await StorageCleaner.clearAllAuthData()
 
+        // Borrar cookie
+        document.cookie = "token=; max-age=0; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+
         setAuthState({
           user: null,
           token: null,

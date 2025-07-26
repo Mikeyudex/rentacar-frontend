@@ -1,29 +1,18 @@
 import type { LoginCredentials, AuthResponse, User, RegisterData, RegisterResponse } from "@/lib/auth-types"
 import { indexedDBManager } from "@/lib/indexeddb"
 import { getPermissions } from "@/lib/utils";
+import { getInfoRole } from "./user-service";
 const API_URL = process.env.NEXT_PUBLIC_ENV === "LOCAL" ? process.env.NEXT_PUBLIC_API_URL_LOCAL : process.env.NEXT_PUBLIC_API_URL
 
 
-export async function getToken(username: string, password: string): Promise<string> {
+export function getToken() {
   try {
-    const formData = new URLSearchParams();
-    formData.append("username", username ?? "");
-    formData.append("password", password ?? "");
-    const response = await fetch(`${API_URL}/api/login`, {
-      method: 'POST',
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: formData.toString(),
-    });
-    if (!response.ok) throw new Error('Error al iniciar sesión');
-    let data = await response.json();
-    return data?.access_token || null;
+    let token = document.cookie.split(";").find(row => row.trim().startsWith("token="))?.split("=")[1];
+    if (token) return token;
   } catch (error) {
     console.error("Error al iniciar sesión:", error)
     throw error
   }
-
 }
 
 /**
@@ -31,7 +20,7 @@ export async function getToken(username: string, password: string): Promise<stri
  */
 export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
   try {
-    const response = await fetch(`${API_URL}/users/login`, {
+    const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,23 +29,33 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
     });
     if (!response.ok) throw new Error('Error al iniciar sesión');
     let data = await response.json();
-    const user = data?.user || null;
+    const user = data?.data?.user || null;
 
     if (!user) {
       throw new Error("Credenciales inválidas")
     }
+
+    const token = data?.data?.access_token || null;
+    const refreshToken = `mock_refresh_token_${user._id}_${Date.now()}`
+    const expiresIn = 24 * 60 * 60 * 1000 // 24 horas
+
+    document.cookie = `token=${token}; max-age=86400; path=/`;
+
+    let roleData = await getInfoRole(user?.roleId);
+    let roleName = roleData?.data?.name || "operativo";
+
     let userMap: User = {
       id: user._id,
       email: user?.email,
-      nombre: user?.nombre,
-      apellido: user?.apellido,
-      role: user?.rol,
+      nombre: user?.name,
+      apellido: user?.lastname,
+      role: user?.roleId,
+      roleName: roleName,
       avatar: user?.avatar,
       permissions: getPermissions(user),
+      companyId: user?.companyId,
     }
-    const token = data?.access_token || null;
-    const refreshToken = `mock_refresh_token_${user._id}_${Date.now()}`
-    const expiresIn = 24 * 60 * 60 * 1000 // 24 horas
+
 
     const authResponse: AuthResponse = {
       user: userMap,
@@ -71,7 +70,7 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
       token,
       refreshToken,
       expiresAt: Date.now() + expiresIn,
-    })
+    });
 
     return authResponse
   } catch (error) {

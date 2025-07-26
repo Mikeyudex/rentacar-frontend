@@ -7,6 +7,8 @@ export interface User {
   role: string
   avatar?: string
   permissions: string[]
+  companyId: string
+  roleName: string
 }
 
 export interface LoginCredentials {

@@ -77,11 +77,10 @@ export function getModelSearchCategories(categories: Category[], parentCat: stri
   return targetParent.children || [];
 }
 
-export function getPermissions(user: any): string[] {
-  if (!user) return ["read"];
+export function getPermissions(roleName: any): string[] {
   let permissions: string[] = ["read"];
-  if (user?.rol === "admin") permissions.push("write", "delete");
-  if (user?.role === "operativo") permissions.push("read", "write");
+  if (roleName === "admin") permissions.push("write", "delete");
+  if (roleName=== "operativo") permissions.push("read", "write");
   return permissions;
 }
 
