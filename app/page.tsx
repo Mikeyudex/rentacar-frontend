@@ -9,8 +9,8 @@ import { ProtectedRoute } from "@/components/auth/protected-route"
 import { AuthWrapper } from "@/components/auth/auth-wrapper"
 
 export const metadata: Metadata = {
-  title: "Dashboard ERP",
-  description: "Sistema de gestión de productos",
+  title: "Rentacar ERP",
+  description: "Sistema de gestión de Vehículos",
 }
 
 export default function DashboardPage() {

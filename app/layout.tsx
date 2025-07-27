@@ -9,8 +9,8 @@ import { AuthProvider } from "@/hooks/use-auth"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Erp Totalmotors",
-  description: "Erp Totalmotors",
+  title: "Erp Rentacar",
+  description: "Sistema de gestión de Vehículos",
   icons: {
     icon: "https://www.totalmotors.cl/wp-content/uploads/2022/08/cropped-Circulo1-180x180.png",
   },

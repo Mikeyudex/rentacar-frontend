@@ -30,7 +30,7 @@ export function DataTable<T extends Record<string, any>>({
   currentPage,
   totalPages,
   totalItems,
-  pageSize,
+  pageSize = 10,
   onPageChange,
   onPageSizeChange,
   searchTerm,

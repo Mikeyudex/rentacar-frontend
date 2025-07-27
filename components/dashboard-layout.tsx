@@ -1,10 +1,9 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Box, Home, Package, Settings, Truck, Users, Tag, BarChart3, Menu, Bell, Search, Package2, ShoppingCart } from "lucide-react"
+import { Home, Package, Settings, Users, BarChart3 } from "lucide-react"
 
 import {
   Sidebar,
@@ -33,7 +32,7 @@ export function DashboardLayout({ children, role }: { children: React.ReactNode,
           <Link href="/" className="flex items-center gap-2 px-2">
             {/* <Box className="h-6 w-6 flex-shrink-0" /> */}
             <img src="/Logo-DOF1-768x552.png" alt="logo" className="h-6 w-8 group-data-[collapsible=icon]:hidden" />
-            <span className="text-lg font-bold group-data-[collapsible=icon]:hidden">ERP TotalMotors</span>
+            <span className="text-lg font-bold group-data-[collapsible=icon]:hidden">Rentacar ERP</span>
           </Link>
         </SidebarHeader>
         <SidebarContent>
@@ -47,10 +46,10 @@ export function DashboardLayout({ children, role }: { children: React.ReactNode,
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={pathname.startsWith("/productos")} tooltip="Productos">
-                <Link href="/productos">
+              <SidebarMenuButton asChild isActive={pathname.startsWith("/vehiculos")} tooltip="Vehículos">
+                <Link href="/vehiculos">
                   <Package className="h-4 w-4" />
-                  <span>Productos</span>
+                  <span>Vehículos</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -72,15 +71,6 @@ export function DashboardLayout({ children, role }: { children: React.ReactNode,
                       <Link href="/reportes">
                         <BarChart3 className="h-4 w-4" />
                         <span>Reportes</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={pathname.startsWith("/sku")} tooltip="SKU Manager">
-                      <Link href="/sku">
-                        <Settings className="h-4 w-4" />
-                        <span>SKU Manager</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
