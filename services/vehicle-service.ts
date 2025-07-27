@@ -7,6 +7,8 @@ import type {
 } from "@/lib/vehicle-types"
 import type { PaginatedResponse, PaginationParams } from "@/lib/types"
 
+const API_URL = process.env.NEXT_PUBLIC_ENV === "LOCAL" ? process.env.NEXT_PUBLIC_API_URL_LOCAL : process.env.NEXT_PUBLIC_API_URL;
+
 // Datos simulados de vehículos
 const vehiclesData: Vehicle[] = [
   {
@@ -17,8 +19,8 @@ const vehiclesData: Vehicle[] = [
     numMotor: "4A-FE123456",
     numVin: "JT2AE94A0X0123456",
     color: "Blanco",
-    fechaCreacion: "2024-01-15T10:30:00Z",
-    fechaActualizacion: "2024-01-15T10:30:00Z",
+    createdAt: "2024-01-15T10:30:00Z",
+    updatedAt: "2024-01-15T10:30:00Z",
   },
   {
     id: "2",
@@ -28,8 +30,8 @@ const vehiclesData: Vehicle[] = [
     numMotor: "D16Y8789012",
     numVin: "2HGEJ6618XH123789",
     color: "Azul",
-    fechaCreacion: "2024-01-16T14:20:00Z",
-    fechaActualizacion: "2024-01-16T14:20:00Z",
+    createdAt: "2024-01-16T14:20:00Z",
+    updatedAt: "2024-01-16T14:20:00Z",
   },
   {
     id: "3",
@@ -39,8 +41,8 @@ const vehiclesData: Vehicle[] = [
     numMotor: "ZETEC345678",
     numVin: "1FAFP34P04W123456",
     color: "Rojo",
-    fechaCreacion: "2024-01-17T09:15:00Z",
-    fechaActualizacion: "2024-01-17T09:15:00Z",
+    createdAt: "2024-01-17T09:15:00Z",
+    updatedAt: "2024-01-17T09:15:00Z",
   },
 ]
 
@@ -72,220 +74,151 @@ function isNumVinUnique(numVin: string, excludeId?: string): boolean {
 
 // Obtener lista de vehículos con paginación y filtros
 export async function getVehicles(params: PaginationParams & VehicleFilters): Promise<PaginatedResponse<Vehicle>> {
-  console.log("Obteniendo vehículos con parámetros:", params)
+  const query = new URLSearchParams()
 
-  // Simular delay de red
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  // Agregar parámetros a la query string
+  if (params.page) query.set("page", params.page.toString())
+  if (params.limit) query.set("limit", params.limit.toString())
+  if (params.search) query.set("search", params.search)
+  if (params.sortBy) query.set("sortBy", params.sortBy)
+  if (params.sortOrder) query.set("sortOrder", params.sortOrder)
+  if (params.marca) query.set("marca", params.marca)
+  if (params.color) query.set("color", params.color)
 
-  let filteredVehicles = [...vehiclesData]
+  const url = `${API_URL}/vehicles?${query.toString()}`
 
-  // Aplicar filtros
-  if (params.search) {
-    const searchTerm = params.search.toLowerCase()
-    filteredVehicles = filteredVehicles.filter(
-      (vehicle) =>
-        vehicle.patente.toLowerCase().includes(searchTerm) ||
-        vehicle.marca.toLowerCase().includes(searchTerm) ||
-        vehicle.modelo.toLowerCase().includes(searchTerm) ||
-        vehicle.color.toLowerCase().includes(searchTerm),
-    )
-  }
+  try {
+    const response = await fetch(url)
 
-  if (params.marca) {
-    filteredVehicles = filteredVehicles.filter((vehicle) =>
-      vehicle.marca.toLowerCase().includes(params.marca!.toLowerCase()),
-    )
-  }
+    if (!response.ok) {
+      throw new Error(`Error al obtener vehículos: ${response.statusText}`)
+    }
 
-  if (params.color) {
-    filteredVehicles = filteredVehicles.filter((vehicle) =>
-      vehicle.color.toLowerCase().includes(params.color!.toLowerCase()),
-    )
-  }
-
-  // Aplicar ordenamiento
-  if (params.sortBy) {
-    filteredVehicles.sort((a, b) => {
-      const aValue = a[params.sortBy as keyof Vehicle] as string
-      const bValue = b[params.sortBy as keyof Vehicle] as string
-
-      if (params.sortOrder === "desc") {
-        return bValue.localeCompare(aValue)
-      }
-      return aValue.localeCompare(bValue)
-    })
-  }
-
-  // Aplicar paginación
-  const startIndex = (params.page - 1) * params.limit
-  const endIndex = startIndex + params.limit
-  const paginatedVehicles = filteredVehicles.slice(startIndex, endIndex)
-
-  const totalPages = Math.ceil(filteredVehicles.length / params.limit)
-
-  return {
-    data: paginatedVehicles,
-    meta: {
-      currentPage: params.page,
-      totalPages,
-      totalItems: filteredVehicles.length,
-      itemsPerPage: params.limit,
-    },
+    const result = await response.json()
+    let mappedVehicles: Vehicle[] = result.data.map((vehicle: any) => ({
+      ...vehicle,
+      id: vehicle?._id,
+    }));
+    result.data = mappedVehicles;
+    return result as PaginatedResponse<Vehicle>
+  } catch (error) {
+    console.error("Error al obtener vehículos desde la API:", error)
+    throw error
   }
 }
 
 // Obtener vehículo por ID
 export async function getVehicleById(id: string): Promise<Vehicle | null> {
-  console.log("Obteniendo vehículo por ID:", id)
+  try {
+    const response = await fetch(`${API_URL}/vehicles/${id}`);
 
-  // Simular delay de red
-  await new Promise((resolve) => setTimeout(resolve, 300))
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error(`Error al obtener vehículo: ${response.statusText}`);
+    }
 
-  const vehicle = vehiclesData.find((v) => v.id === id)
-  return vehicle || null
+    const result = await response.json();
+
+    return result.data as Vehicle;
+  } catch (error) {
+    console.error("Error al obtener vehículo por ID:", error);
+    throw error;
+  }
 }
-
 // Crear nuevo vehículo
 export async function createVehicle(data: CreateVehicleData): Promise<VehicleServiceResponse> {
-  console.log("Creando vehículo:", data)
+  try {
+    const response = await fetch(`${API_URL}/vehicles`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  // Simular delay de red
-  await new Promise((resolve) => setTimeout(resolve, 800))
+    const result = await response.json();
 
-  // Validaciones
-  if (!isPatenteUnique(data.patente)) {
+    if (!response.ok) {
+      return {
+        success: false,
+        message: result.message || "Error al crear el vehículo",
+      };
+    }
+
+    return {
+      success: true,
+      message: "Vehículo creado exitosamente",
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Error al crear vehículo:", error);
     return {
       success: false,
-      message: "Ya existe un vehículo con esta patente",
-    }
-  }
-
-  if (!isNumMotorUnique(data.numMotor)) {
-    return {
-      success: false,
-      message: "Ya existe un vehículo con este número de motor",
-    }
-  }
-
-  if (!isNumVinUnique(data.numVin)) {
-    return {
-      success: false,
-      message: "Ya existe un vehículo con este número VIN",
-    }
-  }
-
-  // Crear nuevo vehículo
-  const newVehicle: Vehicle = {
-    id: generateId(),
-    ...data,
-    patente: data.patente.toUpperCase(),
-    marca: data.marca.trim(),
-    modelo: data.modelo.trim(),
-    numMotor: data.numMotor.toUpperCase(),
-    numVin: data.numVin.toUpperCase(),
-    color: data.color.trim(),
-    fechaCreacion: new Date().toISOString(),
-    fechaActualizacion: new Date().toISOString(),
-  }
-
-  vehiclesData.push(newVehicle)
-
-  console.log("Vehículo creado exitosamente:", newVehicle)
-
-  return {
-    success: true,
-    message: "Vehículo creado exitosamente",
-    data: newVehicle,
+      message: "Error de red o servidor",
+    };
   }
 }
 
 // Actualizar vehículo
 export async function updateVehicle(data: UpdateVehicleData): Promise<VehicleServiceResponse> {
-  console.log("Actualizando vehículo:", data)
+  try {
+    const response = await fetch(`${API_URL}/vehicles/${data.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  // Simular delay de red
-  await new Promise((resolve) => setTimeout(resolve, 800))
+    const result = await response.json();
 
-  const vehicleIndex = vehiclesData.findIndex((v) => v.id === data.id)
+    if (!response.ok) {
+      return {
+        success: false,
+        message: result.message || "Error al actualizar el vehículo",
+      };
+    }
 
-  if (vehicleIndex === -1) {
+    return {
+      success: true,
+      message: "Vehículo actualizado exitosamente",
+      data: result.data,
+    };
+  } catch (error) {
+    console.error("Error al actualizar vehículo:", error);
     return {
       success: false,
-      message: "Vehículo no encontrado",
-    }
-  }
-
-  // Validaciones para campos únicos si se están actualizando
-  if (data.patente && !isPatenteUnique(data.patente, data.id)) {
-    return {
-      success: false,
-      message: "Ya existe un vehículo con esta patente",
-    }
-  }
-
-  if (data.numMotor && !isNumMotorUnique(data.numMotor, data.id)) {
-    return {
-      success: false,
-      message: "Ya existe un vehículo con este número de motor",
-    }
-  }
-
-  if (data.numVin && !isNumVinUnique(data.numVin, data.id)) {
-    return {
-      success: false,
-      message: "Ya existe un vehículo con este número VIN",
-    }
-  }
-
-  // Actualizar vehículo
-  const updatedVehicle: Vehicle = {
-    ...vehiclesData[vehicleIndex],
-    ...data,
-    patente: data.patente ? data.patente.toUpperCase() : vehiclesData[vehicleIndex].patente,
-    marca: data.marca ? data.marca.trim() : vehiclesData[vehicleIndex].marca,
-    modelo: data.modelo ? data.modelo.trim() : vehiclesData[vehicleIndex].modelo,
-    numMotor: data.numMotor ? data.numMotor.toUpperCase() : vehiclesData[vehicleIndex].numMotor,
-    numVin: data.numVin ? data.numVin.toUpperCase() : vehiclesData[vehicleIndex].numVin,
-    color: data.color ? data.color.trim() : vehiclesData[vehicleIndex].color,
-    fechaActualizacion: new Date().toISOString(),
-  }
-
-  vehiclesData[vehicleIndex] = updatedVehicle
-
-  console.log("Vehículo actualizado exitosamente:", updatedVehicle)
-
-  return {
-    success: true,
-    message: "Vehículo actualizado exitosamente",
-    data: updatedVehicle,
+      message: "Error de red o servidor",
+    };
   }
 }
 
 // Eliminar vehículo
 export async function deleteVehicle(id: string): Promise<VehicleServiceResponse> {
-  console.log("Eliminando vehículo:", id)
+  try {
+    const response = await fetch(`${API_URL}/vehicles/${id}`, {
+      method: "DELETE",
+    });
 
-  // Simular delay de red
-  await new Promise((resolve) => setTimeout(resolve, 500))
+    const result = await response.json();
 
-  const vehicleIndex = vehiclesData.findIndex((v) => v.id === id)
+    if (!response.ok) {
+      return {
+        success: false,
+        message: result.message || "Error al eliminar el vehículo",
+      };
+    }
 
-  if (vehicleIndex === -1) {
+    return {
+      success: true,
+      message: "Vehículo eliminado exitosamente",
+    };
+  } catch (error) {
+    console.error("Error al eliminar vehículo:", error);
     return {
       success: false,
-      message: "Vehículo no encontrado",
-    }
-  }
-
-  const deletedVehicle = vehiclesData[vehicleIndex]
-  vehiclesData.splice(vehicleIndex, 1)
-
-  console.log("Vehículo eliminado exitosamente:", deletedVehicle)
-
-  return {
-    success: true,
-    message: "Vehículo eliminado exitosamente",
-    data: deletedVehicle,
+      message: "Error de red o servidor",
+    };
   }
 }
 

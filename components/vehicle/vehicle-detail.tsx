@@ -256,11 +256,11 @@ export function VehicleDetail({ vehicleId }: VehicleDetailProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Fecha de Creación</label>
-                  <p className="text-base">{formatDate(vehicle.fechaCreacion)}</p>
+                  <p className="text-base">{formatDate(vehicle.createdAt)}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Última Actualización</label>
-                  <p className="text-base">{formatDate(vehicle.fechaActualizacion)}</p>
+                  <p className="text-base">{formatDate(vehicle.updatedAt ?? vehicle.createdAt)}</p>
                 </div>
               </div>
             </CardContent>

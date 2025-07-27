@@ -7,8 +7,8 @@ export interface Vehicle {
   numMotor: string
   numVin: string
   color: string
-  fechaCreacion: string
-  fechaActualizacion: string
+  createdAt: string
+  updatedAt: string
 }
 
 // Datos para crear un vehículo

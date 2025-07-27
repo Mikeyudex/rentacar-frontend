@@ -106,8 +106,8 @@ export function VehiclesTable() {
             numMotor: vehicle.numMotor,
             numVin: vehicle.numVin,
             color: vehicle.color,
-            fechaCreacion: vehicle.fechaCreacion,
-            fechaActualizacion: vehicle.fechaActualizacion,
+            createdAt: vehicle.createdAt,
+            updatedAt: vehicle.updatedAt,
         })
     }
 
@@ -194,13 +194,13 @@ export function VehiclesTable() {
             cell: (vehicle) => <div className="font-mono text-sm">{vehicle.numVin}</div>,
         },
         {
-            id: "fechaCreacion",
-            accessorKey: "fechaCreacion",
+            id: "createdAt",
+            accessorKey: "createdAt",
             header: "Fecha Creación",
             sortable: true,
             cell: (vehicle) => (
                 <div className="text-sm text-muted-foreground">
-                    {new Date(vehicle.fechaCreacion).toLocaleDateString("es-ES")}
+                    {new Date(vehicle.createdAt).toLocaleDateString("es-ES")}
                 </div>
             ),
         },
