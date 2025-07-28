@@ -74,15 +74,13 @@ export function VehicleForm() {
     setIsLoading(true)
 
     try {
-      console.log("Enviando datos del vehículo:", data)
-
       const vehicleData: CreateVehicleData = {
         patente: data.patente.toUpperCase(),
-        marca: data.marca.trim(),
-        modelo: data.modelo.trim(),
+        marca: data.marca.trim().toUpperCase(),
+        modelo: data.modelo.trim().toUpperCase(),
         numMotor: data.numMotor.toUpperCase(),
         numVin: data.numVin.toUpperCase(),
-        color: data.color.trim(),
+        color: data.color.trim().toUpperCase(),
       }
 
       const response = await createVehicle(vehicleData)
@@ -164,7 +162,7 @@ export function VehicleForm() {
                       <FormItem>
                         <FormLabel>Marca *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Toyota" {...field} disabled={isLoading} />
+                          <Input placeholder="Toyota" {...field} disabled={isLoading} onChange={(e) => field.onChange(e.target.value.toUpperCase())}/>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -178,7 +176,7 @@ export function VehicleForm() {
                       <FormItem>
                         <FormLabel>Modelo *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Corolla" {...field} disabled={isLoading} />
+                          <Input placeholder="Corolla" {...field} disabled={isLoading} onChange={(e) => field.onChange(e.target.value.toUpperCase())}/>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -192,7 +190,7 @@ export function VehicleForm() {
                       <FormItem>
                         <FormLabel>Color *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Blanco" {...field} disabled={isLoading} />
+                          <Input placeholder="Blanco" {...field} disabled={isLoading} onChange={(e) => field.onChange(e.target.value.toUpperCase())}/>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
