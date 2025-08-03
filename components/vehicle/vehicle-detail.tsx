@@ -13,6 +13,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { useToast } from "@/hooks/use-toast"
 import { getVehicleById, deleteVehicle } from "@/services/vehicle-service"
 import type { Vehicle } from "@/lib/vehicle-types"
+import { DocumentManagement } from "./document-management"
 
 interface VehicleDetailProps {
   vehicleId: string
@@ -269,29 +270,7 @@ export function VehicleDetail({ vehicleId }: VehicleDetailProps) {
 
         {/* Documentos */}
         <TabsContent value="documents" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Documentos del Vehículo
-              </CardTitle>
-              <CardDescription>Documentación legal y técnica del vehículo</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12">
-                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Funcionalidad en Desarrollo</h3>
-                <p className="text-muted-foreground mb-4">La gestión de documentos estará disponible próximamente</p>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>• Certificado de inscripción</p>
-                  <p>• Revisión técnica</p>
-                  <p>• Seguro obligatorio</p>
-                  <p>• Permisos de circulación</p>
-                  <p>• Documentos adicionales</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+           <DocumentManagement vehicleId={vehicleId} vehiclePatente={vehicle.patente} />
         </TabsContent>
       </Tabs>
     </div>
