@@ -3,7 +3,7 @@
 import type React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Package, Settings, Users, BarChart3 } from "lucide-react"
+import { Home, Package, Settings, Users, BarChart3, UsersRound } from "lucide-react"
 
 import {
   Sidebar,
@@ -50,6 +50,24 @@ export function DashboardLayout({ children, role }: { children: React.ReactNode,
                 <Link href="/vehiculos">
                   <Package className="h-4 w-4" />
                   <span>Vehículos</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={pathname.startsWith("/clientes")} tooltip="Clientes">
+                <Link href="/clientes">
+                  <UsersRound className="h-4 w-4" />
+                  <span>Clientes</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={pathname.startsWith("/preventive-maintenance")} tooltip="Mantenciones preventivas">
+                <Link href="/preventive-maintenance">
+                  <Settings className="h-4 w-4" />
+                  <span>Mantenciones preventivas</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

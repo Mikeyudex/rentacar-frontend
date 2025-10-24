@@ -6,6 +6,7 @@ import type {
   VehicleFilters,
 } from "@/lib/vehicle-types"
 import type { PaginatedResponse, PaginationParams } from "@/lib/types"
+import { getTokenFromCookie } from "@/lib/get-token-from-coockie";
 
 const API_URL = process.env.NEXT_PUBLIC_ENV === "LOCAL" ? process.env.NEXT_PUBLIC_API_URL_LOCAL : process.env.NEXT_PUBLIC_API_URL;
 
@@ -88,7 +89,12 @@ export async function getVehicles(params: PaginationParams & VehicleFilters): Pr
   const url = `${API_URL}/vehicles?${query.toString()}`
 
   try {
-    const response = await fetch(url)
+    let token = getTokenFromCookie();
+    const response = await fetch(url, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    })
 
     if (!response.ok) {
       throw new Error(`Error al obtener vehículos: ${response.statusText}`)
@@ -110,7 +116,12 @@ export async function getVehicles(params: PaginationParams & VehicleFilters): Pr
 // Obtener vehículo por ID
 export async function getVehicleById(id: string): Promise<Vehicle | null> {
   try {
-    const response = await fetch(`${API_URL}/vehicles/${id}`);
+    let token = getTokenFromCookie();
+    const response = await fetch(`${API_URL}/vehicles/${id}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
 
     if (!response.ok) {
       if (response.status === 404) return null;
@@ -128,10 +139,12 @@ export async function getVehicleById(id: string): Promise<Vehicle | null> {
 // Crear nuevo vehículo
 export async function createVehicle(data: CreateVehicleData): Promise<VehicleServiceResponse> {
   try {
+    let token = getTokenFromCookie();
     const response = await fetch(`${API_URL}/vehicles`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -162,10 +175,12 @@ export async function createVehicle(data: CreateVehicleData): Promise<VehicleSer
 // Actualizar vehículo
 export async function updateVehicle(data: UpdateVehicleData): Promise<VehicleServiceResponse> {
   try {
+    let token = getTokenFromCookie();
     const response = await fetch(`${API_URL}/vehicles/${data.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -196,8 +211,12 @@ export async function updateVehicle(data: UpdateVehicleData): Promise<VehicleSer
 // Eliminar vehículo
 export async function deleteVehicle(id: string): Promise<VehicleServiceResponse> {
   try {
+    let token = getTokenFromCookie();
     const response = await fetch(`${API_URL}/vehicles/${id}`, {
       method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
     });
 
     const result = await response.json();
